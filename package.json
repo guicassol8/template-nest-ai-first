@@ -16,8 +16,10 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "arch:check": "depcruise src --config .dependency-cruiser.cjs && bash scripts/check-conventions.sh",
+    "openapi:generate": "tsx scripts/emit-openapi-document.ts",
+    "openapi:check": "pnpm openapi:generate && [ -z \"$(git status --porcelain -- openapi.json)\" ]",
     "verify:fast": "pnpm lint && pnpm typecheck",
-    "verify": "pnpm verify:fast && pnpm arch:check"
+    "verify": "pnpm verify:fast && pnpm arch:check && pnpm openapi:check"
   },
   "prisma": {
     "schema": "prisma/schema"
