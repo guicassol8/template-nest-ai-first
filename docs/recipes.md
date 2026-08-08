@@ -32,9 +32,20 @@ O service **não** entra na conta, nos dois sentidos: a leitura usa
 precisou editar o service, alguém reintroduziu uma lista de campos à mão — isso é
 o bug, não o playbook.
 
-Vale escolher entre `.nullable()` e `.optional()` **antes** de começar:
+**Escolha a opcionalidade por schema, não por campo** — e antes de começar.
 `exactOptionalPropertyTypes: true` torna `{ x?: string }` e `{ x: string | null }`
-incompatíveis, e o Prisma devolve `string | null` para coluna opcional.
+incompatíveis, e o Prisma devolve `string | null` para coluna opcional:
+
+| | chave em TS | mapeia `row.x` direto? | esquecer o mapeamento | fixtures |
+|---|---|---|---|---|
+| `.nullable()` | requerida | sim | **quebra o build** | quebram (+1 arquivo) |
+| `.optional()` | opcional | não, exige spread condicional | passa em silêncio | ok |
+| `.nullish()` | opcional | sim | passa em silêncio | ok |
+
+Na entidade (`<Ctx>Schema`) prefira `.nullable()`: esquecer o mapeamento no
+repository vira erro de compilação. No schema de **request**, `.nullable()` torna a
+chave obrigatória no body — isso é breaking change num app publicado, então ali é
+`.optional()`. A combinação mista é o normal, e é ela que faz a conta fechar em 4.
 
 Campo obrigatório em tabela com dados exige default ou backfill — isso é
 **migration destrutiva**, que é gatilho de pergunta.
