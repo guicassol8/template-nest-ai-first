@@ -1,9 +1,16 @@
-# pnpm 10+ exige lista explícita de pacotes autorizados a rodar script de build.
-# Todos aqui compilam binário nativo ou baixam engine — sem eles o app não sobe.
-onlyBuiltDependencies:
-  - '@prisma/client'
-  - '@prisma/engines'
-  - '@swc/core'
-  - argon2
-  - esbuild
-  - prisma
+# pnpm 10+ não roda script de install sem autorização explícita, e no pnpm 11 um
+# build ignorado e não declarado é ERRO — o `pnpm install` do Dockerfile e do CI
+# falha. `allowBuilds` é o nome atual: `onlyBuiltDependencies` e
+# `ignoredBuiltDependencies` são do pnpm 10 e hoje são letra morta (ainda
+# aparecem no `pnpm config list`, mas não têm efeito nenhum).
+#
+# true  = compila binário nativo ou baixa engine; sem isso o app não sobe.
+# false = script de install que não é build (telemetria); não queremos rodar.
+allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': true
+  '@swc/core': true
+  '@scarf/scarf': false
+  argon2: true
+  esbuild: true
+  prisma: true
