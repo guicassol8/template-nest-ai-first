@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: app
+    ports: ['5432:5432']
+    volumes: ['postgres-data:/var/lib/postgresql/data']
+    # Existe para o CI: sem healthcheck a migration roda antes do banco aceitar
+    # conexão e a pipeline fica intermitente.
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U app -d app']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  postgres-data:
