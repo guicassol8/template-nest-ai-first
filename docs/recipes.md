@@ -18,16 +18,23 @@ fechada, não commit intermediário.
 2. `src/modules/<ctx>/<ctx>.contracts.ts` — campo no schema da entidade (e no
    schema de request, se entra pela API)
 3. `src/modules/<ctx>/<ctx>.repository.ts` — mapeamento linha → contrato
-4. `<ctx>.service.spec.ts` — só se o campo for **obrigatório**: os fixtures
-   tipados como `<Ctx>Record` deixam de compilar sem ele
+4. `<ctx>.service.spec.ts` — só se a **chave for requerida em TypeScript**
+   (`.nullable()` sem `.optional()`): aí os fixtures tipados como `<Ctx>Record`
+   deixam de compilar. Com `.optional()`, não entra na conta.
 5. `pnpm db:migrate --name add_<ctx>_<campo>` e `pnpm openapi:generate`
 
-**Arquivos editados: 3, ou 4 se o campo for obrigatório.** Abriu um a mais? Pare
-e reporte.
+**Arquivos editados: 3, ou 4 se a chave for requerida em TypeScript.** Abriu um a
+mais? Pare e reporte.
 
-O service **não** entra na conta: a tradução `<Ctx>Record → <Ctx>` usa
-`<Ctx>Schema.parse`, que não enumera campos. Se você precisou editar o service,
-alguém reintroduziu uma segunda tradução — isso é o bug, não o playbook.
+O service **não** entra na conta, nos dois sentidos: a leitura usa
+`<Ctx>Schema.parse` e a escrita repassa o request em bloco
+(`{ password, ...profile }`), então nenhum dos dois enumera campos. Se você
+precisou editar o service, alguém reintroduziu uma lista de campos à mão — isso é
+o bug, não o playbook.
+
+Vale escolher entre `.nullable()` e `.optional()` **antes** de começar:
+`exactOptionalPropertyTypes: true` torna `{ x?: string }` e `{ x: string | null }`
+incompatíveis, e o Prisma devolve `string | null` para coluna opcional.
 
 Campo obrigatório em tabela com dados exige default ou backfill — isso é
 **migration destrutiva**, que é gatilho de pergunta.

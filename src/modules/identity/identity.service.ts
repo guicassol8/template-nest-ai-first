@@ -33,10 +33,13 @@ export class IdentityService {
     private readonly refreshTokenService: RefreshTokenService,
   ) {}
 
-  async registerUser(request: RegisterUserRequest): Promise<AuthTokens> {
+  // Repassa o resto do request em bloco em vez de reempacotar campo a campo: um
+  // campo novo no cadastro seria descartado em silêncio se listado à mão — falha
+  // em runtime, sem sinal, que é pior que quebrar o build.
+  async registerUser({ password, ...profile }: RegisterUserRequest): Promise<AuthTokens> {
     const created = await this.identityRepository.insertUser({
-      email: request.email,
-      passwordHash: await this.passwordHasher.hashPassword(request.password),
+      ...profile,
+      passwordHash: await this.passwordHasher.hashPassword(password),
       role: 'user',
     });
 

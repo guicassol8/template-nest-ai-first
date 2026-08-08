@@ -2,11 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import type { User as PrismaUser } from '@prisma/client';
 import { PrismaService } from '../../platform/database/prisma.service';
-import type { UserRecord } from './identity.contracts';
+import type { RegisterUserRequest, UserRecord } from './identity.contracts';
 import type { UserRole } from '../../platform/auth/user-role.contracts';
 
-export type InsertUserInput = {
-  email: string;
+// Derivado do contrato de request em vez de reescrito: um campo novo em
+// RegisterUserRequest chega aqui sozinho, sem editar este arquivo.
+export type InsertUserInput = Omit<RegisterUserRequest, 'password'> & {
   passwordHash: string;
   role: UserRole;
 };
