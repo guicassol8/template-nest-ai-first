@@ -1,0 +1,9 @@
+# pnpm 10+ exige lista explícita de pacotes autorizados a rodar script de build.
+# Todos aqui compilam binário nativo ou baixam engine — sem eles o app não sobe.
+onlyBuiltDependencies:
+  - '@prisma/client'
+  - '@prisma/engines'
+  - '@swc/core'
+  - argon2
+  - esbuild
+  - prisma
