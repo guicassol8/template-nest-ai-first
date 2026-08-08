@@ -86,9 +86,10 @@ export default tseslint.config(
     },
   },
   {
-    // O repository é a porta do Prisma e o spec do enum trava a sincronia:
-    // os dois precisam importar @prisma/client.
-    files: ['**/*.repository.ts', '**/*.spec.ts'],
+    // O repository é a porta do Prisma, o spec do enum trava a sincronia e o
+    // PrismaService estende PrismaClient: os três precisam de @prisma/client.
+    // Mesma isenção que a regra prisma-client-only-in-repositories já dá.
+    files: ['**/*.repository.ts', '**/*.spec.ts', 'src/platform/database/**'],
     rules: { 'no-restricted-imports': 'off' },
   },
   {

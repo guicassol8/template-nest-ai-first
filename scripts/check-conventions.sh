@@ -43,8 +43,10 @@ check 'todo .ts usa um papel da lista fechada (AGENTS.md)' \
 check 'process.env não aparece em src/' \
   "$(rg -n 'process\.env' src/ || true)"
 
-check '@prisma/client só em *.repository.ts e *.spec.ts' \
-  "$(rg -l "from '@prisma/client'" src/ | rg -v '\.(repository|spec)\.ts$' || true)"
+check '@prisma/client só em *.repository.ts, *.spec.ts e platform/database/' \
+  "$(rg -l "from '@prisma/client'" src/ \
+     | rg -v '\.(repository|spec)\.ts$' \
+     | rg -v '^src/platform/database/' || true)"
 
 check 'todo controller usa @ZodResponse (health é exceção)' \
   "$(rg -l '@(Get|Post|Put|Patch|Delete)\(' src/ \
