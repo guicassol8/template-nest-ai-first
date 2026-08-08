@@ -1,4 +1,5 @@
 import { HttpException } from '@nestjs/common';
+import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
 export const PROBLEM_TYPE_BASE = 'https://api.example.app/problems';
@@ -26,6 +27,10 @@ export const ProblemDetailsSchema = z
       .optional(), // só para validationFailed
   })
   .meta({ id: 'ProblemDetails' });
+
+// É o que coloca ProblemDetails em components.schemas do openapi.json — o app
+// mobile gera o tipo de erro do SDK a partir daí.
+export class ProblemDetailsDto extends createZodDto(ProblemDetailsSchema) {}
 
 // nestjs-zod devolve `getZodError(): unknown` de propósito. Em vez de forçar um
 // tipo, a borda é parseada — é a mesma regra que vale para HTTP, env e JWT.
