@@ -18,7 +18,7 @@ export default tseslint.config(
         // no-unnecessary-condition, switch-exhaustiveness-check) simplesmente
         // não existe sem informação de tipo.
         projectService: {
-          allowDefaultProject: ['*.ts', '*.mjs', '*.cjs'],
+          allowDefaultProject: ['*.ts', '*.mts', '*.mjs', '*.cjs'],
         },
         tsconfigRootDir: import.meta.dirname,
       },
@@ -99,7 +99,7 @@ export default tseslint.config(
   },
   {
     // Arquivos de configuração em JS não têm tipos para checar.
-    files: ['**/*.mjs', '**/*.cjs', '**/*.js'],
+    files: ['**/*.mjs', '**/*.mts', '**/*.cjs', '**/*.js'],
     extends: [tseslint.configs.disableTypeChecked],
   },
   {
