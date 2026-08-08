@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Valida só a primeira linha. Formato de commit é regra do AGENTS.md, e
+# regra sem checker não existe (P5).
+set -u
+subject="$(head -n1 "$1")"
+
+case "$subject" in
+  Merge\ *|Revert\ *) exit 0 ;;
+esac
+
+pattern='^(feat|fix|refactor|test|docs|build|ci|chore)\([a-z0-9-]+\)!?: [a-z].*[^.]$'
+
+if [ "${#subject}" -gt 72 ] || ! [[ "$subject" =~ $pattern ]]; then
+  printf '✗ mensagem fora do conventional commits (AGENTS.md):\n  %s\n\n' "$subject"
+  printf '  formato: type(scope): descrição no imperativo, em inglês,\n'
+  printf '           minúscula, sem ponto final, até 72 caracteres\n'
+  printf '  type:    feat fix refactor test docs build ci chore\n'
+  printf '  scope:   módulo ou capacidade (identity, auth, database, repo...)\n'
+  exit 1
+fi
