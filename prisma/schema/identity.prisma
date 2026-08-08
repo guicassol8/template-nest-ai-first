@@ -1,0 +1,12 @@
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(user)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Única referência cruzada entre arquivos de schema. O Prisma exige os dois
+  // lados da relação; guardar só userId custaria a FK e o onDelete: Cascade.
+  refreshTokens RefreshToken[]
+}
