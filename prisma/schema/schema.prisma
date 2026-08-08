@@ -1,0 +1,10 @@
+// Multi-file schema (GA desde o Prisma 6.7). O CLI só encontra esta pasta por
+// causa de "prisma": { "schema": "prisma/schema" } no package.json.
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
