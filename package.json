@@ -15,8 +15,9 @@
     "start": "node dist/main.js",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
+    "arch:check": "depcruise src --config .dependency-cruiser.cjs && bash scripts/check-conventions.sh",
     "verify:fast": "pnpm lint && pnpm typecheck",
-    "verify": "pnpm verify:fast"
+    "verify": "pnpm verify:fast && pnpm arch:check"
   },
   "prisma": {
     "schema": "prisma/schema"
