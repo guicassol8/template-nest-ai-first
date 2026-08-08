@@ -5,7 +5,7 @@ import { ZodResponse } from 'nestjs-zod';
 import { CurrentUser, PublicRoute } from '../../platform/auth/auth.decorator';
 import { ApiStandardErrorResponses } from '../../platform/http-errors/api-standard-errors.decorator';
 import { IdentityService } from './identity.service';
-import type { AuthenticatedUser } from '../../platform/auth/authenticated-user.contracts';
+import { AuthenticatedUserDto } from '../../platform/auth/authenticated-user.contracts';
 import {
   AuthTokensDto,
   LoginRequestDto,
@@ -70,7 +70,7 @@ export class IdentityController {
   @ApiBearerAuth()
   @ZodResponse({ status: 200, type: UserDto })
   @ApiStandardErrorResponses()
-  getAuthenticatedUser(@CurrentUser() user: AuthenticatedUser): Promise<User> {
+  getAuthenticatedUser(@CurrentUser() user: AuthenticatedUserDto): Promise<User> {
     return this.identityService.findUserById(user.userId);
   }
 }

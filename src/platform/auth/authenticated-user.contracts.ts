@@ -1,5 +1,6 @@
+import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
-import { UserRoleSchema, type UserRole } from './user-role.contracts';
+import { UserRoleSchema } from './user-role.contracts';
 
 export const AccessTokenClaimsSchema = z
   .object({
@@ -20,9 +21,19 @@ export const RefreshTokenClaimsSchema = z
   })
   .meta({ id: 'RefreshTokenClaims' });
 
+export const AuthenticatedUserSchema = z
+  .object({ userId: z.uuid(), role: UserRoleSchema })
+  .meta({ id: 'AuthenticatedUser' });
+
+// Precisa ser um DTO nestjs-zod, não um type: o pipe global roda com
+// strictSchemaDeclaration e recusa qualquer parâmetro de handler que não seja
+// um. De quebra, o objeto que o guard escreveu é validado antes de chegar no
+// controller.
+export class AuthenticatedUserDto extends createZodDto(AuthenticatedUserSchema) {}
+
 export type AccessTokenClaims = z.infer<typeof AccessTokenClaimsSchema>;
 export type RefreshTokenClaims = z.infer<typeof RefreshTokenClaimsSchema>;
-export type AuthenticatedUser = { userId: string; role: UserRole };
+export type AuthenticatedUser = z.infer<typeof AuthenticatedUserSchema>;
 
 // O guard escreve aqui; o @CurrentUser lê daqui. Sem esta augmentation,
 // getRequest<Request>() não conhece o campo e o código só compila com `as`.

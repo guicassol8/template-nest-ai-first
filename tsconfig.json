@@ -8,6 +8,11 @@
     "incremental": true,
     "skipLibCheck": true,
 
+    // Sem isto, `import x from 'pacote-cjs'` (supertest, helmet) resolve para um
+    // tipo desconhecido e a família no-unsafe-* do ESLint estoura no arquivo
+    // inteiro. Não afrouxa nenhuma checagem: só ensina o compilador a ler CJS.
+    "esModuleInterop": true,
+
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
 
