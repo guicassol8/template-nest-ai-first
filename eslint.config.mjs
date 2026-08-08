@@ -7,7 +7,7 @@ const SOURCE_FILES = ['src/**/*.ts', 'test/**/*.ts', 'scripts/**/*.ts', 'prisma/
 
 export default tseslint.config(
   {
-    ignores: ['dist/**', 'coverage/**', 'node_modules/**'],
+    ignores: ['dist/**', 'dist-openapi/**', 'coverage/**', 'node_modules/**'],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,

@@ -1,0 +1,16 @@
+// O emit do openapi.json precisa do MESMO compilador do build. O tsx usa
+// esbuild, que não implementa emitDecoratorMetadata: sem design:paramtypes o
+// Nest instancia todo controller com zero dependências (não falha no boot,
+// falha na primeira request) e o @nestjs/swagger não enxerga o tipo do @Body —
+// o documento sai sem nenhum requestBody.
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist-openapi",
+    "incremental": false,
+    "sourceMap": false
+  },
+  "include": ["src/**/*", "scripts/emit-openapi-document.ts"],
+  "exclude": ["**/*.spec.ts"]
+}

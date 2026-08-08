@@ -48,10 +48,12 @@ check '@prisma/client só em *.repository.ts, *.spec.ts e platform/database/' \
      | rg -v '\.(repository|spec)\.ts$' \
      | rg -v '^src/platform/database/' || true)"
 
+# -L em ripgrep é --follow (symlinks), NÃO --files-without-match: com -L o check
+# reportava justamente os controllers que ESTÃO corretos.
 check 'todo controller usa @ZodResponse (health é exceção)' \
   "$(rg -l '@(Get|Post|Put|Patch|Delete)\(' src/ \
      | rg -v 'health\.controller\.ts$' \
-     | xargs -r rg -L '@ZodResponse' || true)"
+     | xargs -r rg --files-without-match '@ZodResponse' || true)"
 
 check 'todo valor exportado tem 2+ palavras (type/interface não contam)' \
   "$(rg -n 'export (const|let|class|enum|(async )?function) ([a-z]+|[A-Z][a-z]+|[A-Z]+)\b' src/ || true)"

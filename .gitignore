@@ -15,3 +15,4 @@ coverage/
 # Override local do compose (ex.: remapear a porta do Postgres se a 5432 já
 # estiver ocupada por outro projeto). Nunca commitado.
 docker-compose.override.yml
+dist-openapi/

@@ -16,7 +16,7 @@ const emitOpenApiDocument = async (): Promise<void> => {
   await app.init();
 
   const document = buildOpenApiDocument(app);
-  const outputPath = resolve(__dirname, '..', 'openapi.json');
+  const outputPath = resolve(process.cwd(), 'openapi.json');
   writeFileSync(outputPath, `${JSON.stringify(document, null, 2)}\n`);
 
   await app.close();

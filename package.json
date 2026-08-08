@@ -18,7 +18,7 @@
     "test": "vitest run",
     "test:e2e": "vitest run --config vitest.e2e.config.mts",
     "arch:check": "depcruise src --config .dependency-cruiser.cjs && bash scripts/check-conventions.sh",
-    "openapi:generate": "tsx scripts/emit-openapi-document.ts",
+    "openapi:generate": "tsc -p tsconfig.openapi.json && node dist-openapi/scripts/emit-openapi-document.js",
     "openapi:check": "pnpm openapi:generate && [ -z \"$(git status --porcelain -- openapi.json)\" ]",
     "verify:fast": "pnpm lint && pnpm typecheck",
     "verify": "pnpm verify:fast && pnpm test && pnpm arch:check && pnpm openapi:check",
