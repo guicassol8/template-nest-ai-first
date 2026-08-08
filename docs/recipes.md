@@ -18,9 +18,16 @@ fechada, não commit intermediário.
 2. `src/modules/<ctx>/<ctx>.contracts.ts` — campo no schema da entidade (e no
    schema de request, se entra pela API)
 3. `src/modules/<ctx>/<ctx>.repository.ts` — mapeamento linha → contrato
-4. `pnpm db:migrate --name add_<ctx>_<campo>` e `pnpm openapi:generate`
+4. `<ctx>.service.spec.ts` — só se o campo for **obrigatório**: os fixtures
+   tipados como `<Ctx>Record` deixam de compilar sem ele
+5. `pnpm db:migrate --name add_<ctx>_<campo>` e `pnpm openapi:generate`
 
-**Arquivos editados: 3.** Abriu um 4º? Pare e reporte.
+**Arquivos editados: 3, ou 4 se o campo for obrigatório.** Abriu um a mais? Pare
+e reporte.
+
+O service **não** entra na conta: a tradução `<Ctx>Record → <Ctx>` usa
+`<Ctx>Schema.parse`, que não enumera campos. Se você precisou editar o service,
+alguém reintroduziu uma segunda tradução — isso é o bug, não o playbook.
 
 Campo obrigatório em tabela com dados exige default ou backfill — isso é
 **migration destrutiva**, que é gatilho de pergunta.
@@ -45,7 +52,7 @@ Decida explicitamente se a rota leva `@PublicRoute()`. Se ela exige papel, leva
 
 ## Adicionar um módulo de domínio novo
 
-Crie exatamente estes 8 arquivos em `src/modules/<ctx>/`:
+Crie estes 9 arquivos em `src/modules/<ctx>/`:
 
 1. `AGENTS.md` — ~25 linhas: o que o módulo possui, o que **não** possui, o estágio,
    o que expõe no `.public.ts` e por quê
@@ -61,8 +68,14 @@ Crie exatamente estes 8 arquivos em `src/modules/<ctx>/`:
 Mais: `prisma/schema/<ctx>.prisma`, registrar o módulo em `src/app.module.ts`,
 `pnpm db:migrate --name create_<ctx>` e `pnpm openapi:generate`.
 
-**Arquivos criados: 9 + 1 de schema. Editados: 1.** Não crie o décimo `.ts` sem um
-motivo que caiba em uma frase — e o papel dele tem que estar na lista fechada.
+**Arquivos criados: 9 + 1 de schema. Editados: 1, ou 2 se houver relação com uma
+entidade de outro módulo** — o Prisma exige os dois lados, então
+`prisma/schema/identity.prisma` também ganha a lista (como já ganhou
+`refreshTokens RefreshToken[]`). Isso não viola a direção de dependências, que é
+sobre imports de TypeScript.
+
+Não crie o décimo `.ts` sem um motivo que caiba em uma frase — e o papel dele tem
+que estar na lista fechada.
 
 O módulo nasce no estágio `simples`. Não faça scaffold de agregado, evento ou CQRS
 sem invariante declarada.

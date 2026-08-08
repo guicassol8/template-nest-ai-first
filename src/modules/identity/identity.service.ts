@@ -7,6 +7,7 @@ import {
   ProblemDetailsException,
 } from '../../platform/http-errors/problem-details.contracts';
 import { IdentityRepository } from './identity.repository';
+import { UserSchema } from './identity.contracts';
 import type {
   AuthTokens,
   LoginRequest,
@@ -15,12 +16,11 @@ import type {
   UserRecord,
 } from './identity.contracts';
 
-const toUser = ({ id, email, role, createdAt }: UserRecord): User => ({
-  id,
-  email,
-  role,
-  createdAt,
-});
+// O próprio schema decide o que é público: `parse` descarta `passwordHash` e
+// qualquer outro campo interno. Enumerar campos aqui duplicaria a tradução e faria
+// "adicionar um campo a User" editar este arquivo também, quebrando a contagem do
+// playbook em docs/recipes.md.
+const toUser = (record: UserRecord): User => UserSchema.parse(record);
 
 @Injectable()
 export class IdentityService {
