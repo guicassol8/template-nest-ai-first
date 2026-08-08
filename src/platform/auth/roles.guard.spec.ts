@@ -8,8 +8,8 @@ import { RequireRoles } from './auth.decorator';
 import type { AuthenticatedUser } from './authenticated-user.contracts';
 
 // ExecutionContextHost é a implementação real que o Nest usa em runtime. Forjar
-// um objeto com o formato de ExecutionContext exigiria `as unknown as`, que é
-// proibido — e testaria o fake, não o guard.
+// um objeto com o formato de ExecutionContext exigiria dupla asserção de tipo,
+// que é proibida — e testaria o fake, não o guard.
 class OpenProbeController {
   handleProbeRoute(this: void): void {
     return undefined;

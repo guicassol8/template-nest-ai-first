@@ -1,5 +1,5 @@
-// Única superfície importável por outro módulo. Re-export nomeado, nunca
-// `export *`: quem lê este arquivo tem que descobrir os nomes sem grepar a pasta.
+// Única superfície importável por outro módulo. Sempre re-export nomeado: quem
+// lê este arquivo tem que descobrir os nomes aqui, sem grepar a pasta inteira.
 //
 // IdentityRepository e UserRecord ficam de fora de propósito — passwordHash não
 // atravessa a fronteira do módulo.
