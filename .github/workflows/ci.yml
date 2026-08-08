@@ -9,6 +9,29 @@ jobs:
   verify:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+          POSTGRES_DB: app
+        ports: ['5432:5432']
+        # Sem o healthcheck a migration roda antes do banco aceitar conexão e a
+        # pipeline fica intermitente.
+        options: >-
+          --health-cmd "pg_isready -U app -d app"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://app:app@localhost:5432/app
+      JWT_ACCESS_SECRET: ci-only-access-secret-0123456789abcdef
+      JWT_REFRESH_SECRET: ci-only-refresh-secret-0123456789abcdef
+      LOG_LEVEL: error
+      NODE_ENV: test
+
     steps:
       - uses: actions/checkout@v5
 
@@ -21,6 +44,12 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - run: pnpm prisma generate
+
+      - run: pnpm db:deploy
+
       - run: pnpm verify
+
+      - run: pnpm test:e2e
 
       - run: pnpm build
