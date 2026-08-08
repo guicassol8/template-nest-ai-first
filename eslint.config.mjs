@@ -93,9 +93,14 @@ export default tseslint.config(
     rules: { 'no-restricted-imports': 'off' },
   },
   {
-    // Seed e scripts rodam fora do container de DI: não têm ConfigService.
+    // Seed e scripts rodam fora do container de DI: não têm ConfigService nem
+    // PrismaService, e escrevem no stdout porque não têm logger do Nest.
     files: ['prisma/**', 'scripts/**'],
-    rules: { 'no-restricted-properties': 'off', 'no-console': 'off' },
+    rules: {
+      'no-restricted-properties': 'off',
+      'no-console': 'off',
+      'no-restricted-imports': 'off',
+    },
   },
   {
     // Arquivos de configuração em JS não têm tipos para checar.
