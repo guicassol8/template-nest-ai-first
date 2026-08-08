@@ -1,0 +1,9 @@
+node_modules
+dist
+dist-openapi
+coverage
+.git
+.env
+.env.*
+!.env.example
+docker-compose.override.yml
