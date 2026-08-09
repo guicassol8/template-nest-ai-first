@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2023",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "node16",
+    "moduleResolution": "node16",
     "outDir": "./dist",
     "sourceMap": true,
     "incremental": true,
@@ -28,5 +28,5 @@
     "allowUnreachableCode": false,
     "isolatedModules": true
   },
-  "include": ["src/**/*", "test/**/*", "scripts/**/*", "prisma/**/*"]
+  "include": ["src/**/*", "test/**/*", "scripts/**/*", "prisma/**/*", "prisma.config.ts"]
 }

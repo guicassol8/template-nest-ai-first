@@ -18,7 +18,8 @@ export default tseslint.config(
         // no-unnecessary-condition, switch-exhaustiveness-check) simplesmente
         // não existe sem informação de tipo.
         projectService: {
-          allowDefaultProject: ['*.ts', '*.mts', '*.mjs', '*.cjs'],
+          // prisma.config.ts é o único .ts da raiz e está no tsconfig: não pode entrar aqui.
+          allowDefaultProject: ['*.mts', '*.mjs', '*.cjs'],
         },
         tsconfigRootDir: import.meta.dirname,
       },

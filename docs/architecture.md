@@ -170,6 +170,16 @@ checkers reescritos junto.
 type-aware simplesmente não roda — e ele é metade das regras de tipagem do
 `AGENTS.md`. Subir só quando o `typescript-eslint` suportar.
 
+`module`/`moduleResolution` são `node16`, não o antigo `node`/`node10`: o node10
+está deprecado e **para de funcionar no TypeScript 7**. Sem `"type": "module"` no
+`package.json`, o `node16` continua emitindo CommonJS — a saída e o `openapi.json`
+saem byte a byte iguais.
+
+O schema do Prisma é apontado por `prisma.config.ts`, não pelo `package.json#prisma`,
+que o CLI já marca como deprecado e some no Prisma 7. O `url` continua no bloco
+`datasource` porque na major 6 é lá que ele mora; a extensão do VS Code pode
+reclamar disso quando estiver na 7 — é falso positivo, não mexa.
+
 `esModuleInterop` está ligado porque `supertest` e `argon2` são CommonJS puro: sem
 ele o import resolve para um tipo desconhecido e a família `no-unsafe-*` estoura no
 arquivo inteiro. Não afrouxa checagem nenhuma — só ensina o compilador a ler CJS.
