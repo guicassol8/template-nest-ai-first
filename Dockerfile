@@ -1,7 +1,7 @@
+# Sem openssl: era exigência do engine Rust do Prisma <= 6; o client da 7 é
+# Rust-free e o driver é o pg puro em JS.
 FROM node:24-slim AS base
-RUN corepack enable && apt-get update \
- && apt-get install -y --no-install-recommends openssl \
- && rm -rf /var/lib/apt/lists/*
+RUN corepack enable
 WORKDIR /app
 
 FROM base AS builder
