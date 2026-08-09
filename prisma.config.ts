@@ -1,3 +1,7 @@
+// O CLI do Prisma 7 não carrega .env sozinho (mudança da major): sem esta
+// linha, `pnpm db:migrate`/`db:deploy` falham em máquina limpa mesmo com o
+// .env presente. Não sobrescreve variável já exportada (CI continua mandando).
+import 'dotenv/config';
 import { defineConfig } from 'prisma/config';
 
 // Lido direto do ambiente, e não pelo helper `env()` do Prisma: aquele lança na

@@ -1,3 +1,6 @@
+// tsx não carrega .env: sem isto, `pnpm db:seed` falha em máquina limpa porque
+// o EnvironmentSchema exige DATABASE_URL e os segredos JWT.
+import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../src/generated/prisma/client';
 import { PasswordHasherService } from '../src/platform/auth/password-hasher.service';
