@@ -24,7 +24,9 @@ export class RefreshTokenService {
   ) {}
 
   /** Abre uma família nova de rotação. Um login = uma família. */
-  issueRefreshToken(userId: string): Promise<string> {
+  async issueRefreshToken(userId: string): Promise<string> {
+    // Faxina oportunista no login: mantém a tabela enxuta sem precisar de cron.
+    await this.refreshTokenRepository.deleteExpiredRefreshTokens(userId, new Date());
     return this.issueInFamily(userId, randomUUID());
   }
 

@@ -33,6 +33,17 @@ export class RefreshTokenRepository {
     return this.prisma.refreshToken.findUnique({ where: { id } });
   }
 
+  /**
+   * Faxina oportunista: linhas expiradas (revogadas ou não) já não autenticam
+   * nada e só engordam a tabela. Sem cron no projeto — de propósito —, o login
+   * é o momento natural de descartar o lixo do próprio usuário.
+   */
+  async deleteExpiredRefreshTokens(userId: string, now: Date): Promise<void> {
+    await this.prisma.refreshToken.deleteMany({
+      where: { userId, expiresAt: { lt: now } },
+    });
+  }
+
   async revokeTokenFamily(familyId: string, revokedAt: Date): Promise<void> {
     await this.prisma.refreshToken.updateMany({
       where: { familyId, revokedAt: null },

@@ -52,10 +52,12 @@ const buildRefreshTokenService = async (overrides: {
   insertedTokens: InsertRefreshTokenInput[];
   rotatedTokens: InsertRefreshTokenInput[];
   revokedFamilies: string[];
+  prunedUsers: string[];
 }> => {
   const insertedTokens: InsertRefreshTokenInput[] = [];
   const rotatedTokens: InsertRefreshTokenInput[] = [];
   const revokedFamilies: string[] = [];
+  const prunedUsers: string[] = [];
 
   const moduleRef = await Test.createTestingModule({
     imports: [JwtModule.register({})],
@@ -89,6 +91,10 @@ const buildRefreshTokenService = async (overrides: {
             revokedFamilies.push(familyId);
             return Promise.resolve();
           },
+          deleteExpiredRefreshTokens: (userId: string) => {
+            prunedUsers.push(userId);
+            return Promise.resolve();
+          },
         },
       },
     ],
@@ -100,6 +106,7 @@ const buildRefreshTokenService = async (overrides: {
     insertedTokens,
     rotatedTokens,
     revokedFamilies,
+    prunedUsers,
   };
 };
 
@@ -131,6 +138,16 @@ describe('RefreshTokenService', () => {
     expect(harness.insertedTokens[0]?.id).toBe(claims.jti);
     expect(harness.insertedTokens[0]?.familyId).toBe(claims.fam);
     expect(harness.insertedTokens[0]?.tokenHash).toBe('hash-novo');
+  });
+
+  // Não há cron no projeto: a tabela só para de crescer porque o login limpa
+  // os expirados do próprio usuário.
+  it('descarta os tokens expirados do usuário ao abrir família nova', async () => {
+    const harness = await buildRefreshTokenService({});
+
+    await harness.refreshTokenService.issueRefreshToken(USER_ID);
+
+    expect(harness.prunedUsers).toEqual([USER_ID]);
   });
 
   it('rotaciona token vivo e emite o sucessor na mesma família', async () => {

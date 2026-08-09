@@ -11,6 +11,8 @@ model RefreshToken {
 
   @@index([userId])
   @@index([familyId])
+  // Para varreduras globais de expirados (a limpeza por usuário usa o índice de userId).
+  @@index([expiresAt])
 }
 
 enum UserRole {
