@@ -62,15 +62,7 @@ module.exports = {
       severity: 'warn',
       from: {
         orphan: true,
-        pathNot: [
-          '\\.d\\.ts$',
-          '^src/main\\.ts$',
-          '^src/generated/',
-          // Infraestrutura para os switches exaustivos dos módulos futuros
-          // (AGENTS.md §6). Sem a exceção, o warn dispara em toda execução e
-          // ensina a ignorar warnings.
-          '^src/platform/http-errors/never-reached\\.assert\\.ts$',
-        ],
+        pathNot: ['\\.d\\.ts$', '^src/main\\.ts$', '^src/generated/'],
       },
       to: {},
     },
