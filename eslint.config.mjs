@@ -64,7 +64,10 @@ export default tseslint.config(
       'no-console': 'error', // use o logger do pino
       // error, não warn: warning que não derruba o verify é checker que não
       // pode falhar (P5) — e o lint roda com --max-warnings=0 pelo mesmo motivo.
-      'max-lines': ['error', { max: 600, skipBlankLines: true, skipComments: true }],
+      // 800 é tripwire, não meta: o custo real é hop, não linha (P2). Um arquivo
+      // que estourar isso provavelmente virou dois conceitos — aí se divide por
+      // conceito, não por contagem.
+      'max-lines': ['error', { max: 800, skipBlankLines: true, skipComments: true }],
       'no-restricted-imports': [
         'error',
         {
