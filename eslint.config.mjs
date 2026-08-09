@@ -62,7 +62,9 @@ export default tseslint.config(
         { 'ts-ignore': true, 'ts-expect-error': 'allow-with-description' },
       ],
       'no-console': 'error', // use o logger do pino
-      'max-lines': ['warn', { max: 600, skipBlankLines: true, skipComments: true }],
+      // error, não warn: warning que não derruba o verify é checker que não
+      // pode falhar (P5) — e o lint roda com --max-warnings=0 pelo mesmo motivo.
+      'max-lines': ['error', { max: 600, skipBlankLines: true, skipComments: true }],
       'no-restricted-imports': [
         'error',
         {
@@ -99,8 +101,13 @@ export default tseslint.config(
   {
     // O repository é a porta do Prisma, o spec do enum trava a sincronia e o
     // PrismaService estende PrismaClient: os três precisam do client gerado.
-    // Mesma isenção que a regra prisma-client-only-in-repositories já dá.
-    files: ['**/*.repository.ts', '**/*.spec.ts', 'src/platform/database/**'],
+    // Só ESTE spec — isentar *.spec.ts inteiro deixaria qualquer teste futuro
+    // importar o client sem ninguém reclamar, mais largo do que a regra escrita.
+    files: [
+      '**/*.repository.ts',
+      'src/platform/auth/user-role.contracts.spec.ts',
+      'src/platform/database/**',
+    ],
     rules: { 'no-restricted-imports': 'off' },
   },
   {

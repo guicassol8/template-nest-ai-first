@@ -48,10 +48,11 @@ check 'todo .ts usa um papel da lista fechada (AGENTS.md)' \
 check 'process.env não aparece em src/' \
   "$(rg -n 'process\.env' src/ | rg -v "$GENERATED" || true)"
 
-check 'client do Prisma só em *.repository.ts, *.spec.ts e platform/database/' \
+check 'client do Prisma só em *.repository.ts, no spec do enum e em platform/database/' \
   "$(rg -l "from '.*generated/prisma" src/ \
      | rg -v "$GENERATED" \
-     | rg -v '\.(repository|spec)\.ts$' \
+     | rg -v '\.repository\.ts$' \
+     | rg -v '^src/platform/auth/user-role\.contracts\.spec\.ts$' \
      | rg -v '^src/platform/database/' || true)"
 
 # -L em ripgrep é --follow (symlinks), NÃO --files-without-match: com -L o check

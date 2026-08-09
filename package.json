@@ -14,7 +14,7 @@
     "build": "nest build",
     "start": "node dist/main.js",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings=0",
     "test": "vitest run",
     "test:e2e": "vitest run --config vitest.e2e.config.mts",
     "arch:check": "depcruise src --config .dependency-cruiser.cjs && bash scripts/check-conventions.sh",
