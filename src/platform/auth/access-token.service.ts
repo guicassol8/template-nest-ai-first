@@ -42,6 +42,9 @@ export class AccessTokenService {
     const payload: unknown = await this.jwtService
       .verifyAsync(token, {
         secret: this.config.get('JWT_ACCESS_SECRET', { infer: true }),
+        // Pinado: aceitar qualquer HMAC que o header do token pedir é
+        // superfície de ataque de graça.
+        algorithms: ['HS256'],
       })
       .catch(() => {
         throw new UnauthorizedException('Token inválido ou expirado');

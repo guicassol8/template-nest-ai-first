@@ -164,6 +164,8 @@ export class RefreshTokenService {
     const payload: unknown = await this.jwtService
       .verifyAsync(presentedToken, {
         secret: this.config.get('JWT_REFRESH_SECRET', { infer: true }),
+        // Pinado, como no access token: o algoritmo é decisão nossa, não do header.
+        algorithms: ['HS256'],
       })
       .catch(() => null);
 
