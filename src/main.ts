@@ -38,7 +38,11 @@ const bootstrapApplication = async (): Promise<void> => {
   });
 
   configureApiPrefix(app);
-  SwaggerModule.setup('docs', app, buildOpenApiDocument(app));
+  // Swagger UI é ferramenta de desenvolvimento. Em produção a superfície
+  // pública é o openapi.json commitado — não uma UI navegável no host da API.
+  if (config.get('NODE_ENV', { infer: true }) !== 'production') {
+    SwaggerModule.setup('docs', app, buildOpenApiDocument(app));
+  }
 
   await app.listen(config.get('PORT', { infer: true }));
 };
