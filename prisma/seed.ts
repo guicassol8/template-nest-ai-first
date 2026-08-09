@@ -33,9 +33,12 @@ const seedAdminUser = async (): Promise<void> => {
 
   try {
     const passwordHash = await passwordHasher.hashPassword(environment.SEED_ADMIN_PASSWORD);
+    // O update também redefine a senha: sem isso, alguém que registrasse o
+    // email do admin pela rota pública antes do primeiro seed seria promovido
+    // mantendo a PRÓPRIA senha. O seed é a fonte de verdade da credencial.
     const admin = await prisma.user.upsert({
       where: { email: environment.SEED_ADMIN_EMAIL },
-      update: { role: 'admin' },
+      update: { role: 'admin', passwordHash },
       create: { email: environment.SEED_ADMIN_EMAIL, passwordHash, role: 'admin' },
     });
     console.log(`admin pronto: ${admin.email}`);
