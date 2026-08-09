@@ -51,12 +51,12 @@ const buildRefreshTokenService = async (overrides: {
   jwtService: JwtService;
   insertedTokens: InsertRefreshTokenInput[];
   rotatedTokens: InsertRefreshTokenInput[];
-  revokedFamilies: string[];
+  deletedFamilies: string[];
   prunedUsers: string[];
 }> => {
   const insertedTokens: InsertRefreshTokenInput[] = [];
   const rotatedTokens: InsertRefreshTokenInput[] = [];
-  const revokedFamilies: string[] = [];
+  const deletedFamilies: string[] = [];
   const prunedUsers: string[] = [];
 
   const moduleRef = await Test.createTestingModule({
@@ -87,8 +87,8 @@ const buildRefreshTokenService = async (overrides: {
             rotatedTokens.push(next);
             return Promise.resolve(overrides.rotationSucceeds ?? true);
           },
-          revokeTokenFamily: (familyId: string) => {
-            revokedFamilies.push(familyId);
+          deleteTokenFamily: (familyId: string) => {
+            deletedFamilies.push(familyId);
             return Promise.resolve();
           },
           deleteExpiredRefreshTokens: (userId: string) => {
@@ -105,7 +105,7 @@ const buildRefreshTokenService = async (overrides: {
     jwtService: moduleRef.get(JwtService),
     insertedTokens,
     rotatedTokens,
-    revokedFamilies,
+    deletedFamilies,
     prunedUsers,
   };
 };
@@ -162,7 +162,7 @@ describe('RefreshTokenService', () => {
     const claims = await parseRefreshClaims(harness.jwtService, rotated.refreshToken);
     expect(claims.fam).toBe(FAMILY_ID);
     expect(harness.rotatedTokens[0]?.id).toBe(claims.jti);
-    expect(harness.revokedFamilies).toHaveLength(0);
+    expect(harness.deletedFamilies).toHaveLength(0);
   });
 
   // O app mandou o refresh, a resposta se perdeu na rede e ele reapresenta o
@@ -178,7 +178,7 @@ describe('RefreshTokenService', () => {
     const claims = await parseRefreshClaims(harness.jwtService, retried.refreshToken);
     expect(claims.fam).toBe(FAMILY_ID);
     expect(harness.insertedTokens).toHaveLength(1);
-    expect(harness.revokedFamilies).toHaveLength(0);
+    expect(harness.deletedFamilies).toHaveLength(0);
   });
 
   it('revoga a família inteira no reuso fora da janela de graça', async () => {
@@ -192,7 +192,7 @@ describe('RefreshTokenService', () => {
     await expect(
       harness.refreshTokenService.rotateRefreshToken(presented),
     ).rejects.toBeInstanceOf(UnauthorizedException);
-    expect(harness.revokedFamilies).toEqual([FAMILY_ID]);
+    expect(harness.deletedFamilies).toEqual([FAMILY_ID]);
     expect(harness.insertedTokens).toHaveLength(0);
   });
 
@@ -210,7 +210,7 @@ describe('RefreshTokenService', () => {
     const claims = await parseRefreshClaims(harness.jwtService, retried.refreshToken);
     expect(claims.fam).toBe(FAMILY_ID);
     expect(harness.insertedTokens).toHaveLength(1);
-    expect(harness.revokedFamilies).toHaveLength(0);
+    expect(harness.deletedFamilies).toHaveLength(0);
   });
 
   it('rejeita token cuja linha já expirou', async () => {
@@ -252,7 +252,7 @@ describe('RefreshTokenService', () => {
 
     await harness.refreshTokenService.revokeTokenFamily(presented);
 
-    expect(harness.revokedFamilies).toEqual([FAMILY_ID]);
+    expect(harness.deletedFamilies).toEqual([FAMILY_ID]);
   });
 
   // Logout não é oráculo: token desconhecido responde igual ao conhecido.
@@ -263,6 +263,6 @@ describe('RefreshTokenService', () => {
     await expect(
       harness.refreshTokenService.revokeTokenFamily(presented),
     ).resolves.toBeUndefined();
-    expect(harness.revokedFamilies).toHaveLength(0);
+    expect(harness.deletedFamilies).toHaveLength(0);
   });
 });

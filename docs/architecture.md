@@ -99,8 +99,11 @@ Com argon2 (salt aleatório) **não existe busca por hash** — `findUnique({ to
    default) isso é lido como retry de rede — o app mandou o refresh, a resposta
    com o par novo se perdeu, e ele só tem o token antigo para reapresentar.
    Nasce outro token na mesma família e ninguém é deslogado. Fora da janela só
-   sobra roubo: revoga a **família inteira**, loga `warn` com `userId` e
-   `familyId`, devolve `401` — o legítimo e o atacante caem juntos, de propósito.
+   sobra roubo: **apaga a família inteira** (deleta as linhas — `revokedAt`
+   preenchido significa "revogado por rotação" e dá direito à graça, então
+   família morta não pode ficar marcada, ou logout e roubo ressuscitariam por
+   ela), loga `warn` com `userId` e `familyId`, devolve `401` — o legítimo e o
+   atacante caem juntos, de propósito.
 5. **Caso feliz:** revoga a linha atual e emite um par novo na mesma família, numa
    transação — e a revogação é **condicional** (`revokedAt: null` no where). Se
    nenhuma linha foi afetada, um refresh concorrente ganhou a corrida um instante

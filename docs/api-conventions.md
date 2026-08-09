@@ -113,7 +113,7 @@ app lida com `const`/`anyOf` de 3.1.
 | `/v1/auth/register` | POST | Sim | Cria usuário `user`, retorna tokens |
 | `/v1/auth/login` | POST | Sim | Valida credenciais, retorna tokens |
 | `/v1/auth/refresh` | POST | Sim | Rotaciona o par de tokens |
-| `/v1/auth/logout` | POST | Não | Revoga a família do refresh apresentado |
+| `/v1/auth/logout` | POST | Não | Apaga a família do refresh apresentado |
 | `/v1/auth/me` | GET | Não | Retorna o usuário autenticado |
 | `/health` | GET | Sim | Liveness (fora do `/v1`) |
 | `/health/ready` | GET | Sim | Readiness: checa Postgres (fora do `/v1`) |

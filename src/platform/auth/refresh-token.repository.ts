@@ -44,11 +44,14 @@ export class RefreshTokenRepository {
     });
   }
 
-  async revokeTokenFamily(familyId: string, revokedAt: Date): Promise<void> {
-    await this.prisma.refreshToken.updateMany({
-      where: { familyId, revokedAt: null },
-      data: { revokedAt },
-    });
+  /**
+   * Matar a família APAGA as linhas em vez de marcá-las: `revokedAt` preenchido
+   * significa "revogado por rotação" e dá direito à janela de graça — um token
+   * de família morta (logout ou roubo detectado) não pode ressuscitar por ela,
+   * e linha inexistente responde 401 sem exceção nenhuma.
+   */
+  async deleteTokenFamily(familyId: string): Promise<void> {
+    await this.prisma.refreshToken.deleteMany({ where: { familyId } });
   }
 
   /**

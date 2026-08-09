@@ -70,7 +70,8 @@ export class RefreshTokenService {
 
   /**
    * Logout. Não distingue token desconhecido de token já revogado: responder
-   * diferente seria um oráculo de "esta sessão existe".
+   * diferente seria um oráculo de "esta sessão existe". A família é APAGADA,
+   * não marcada — logout é imediato e a janela de graça não o desfaz.
    */
   async revokeTokenFamily(presentedToken: string): Promise<void> {
     const claims = await this.readClaims(presentedToken);
@@ -79,7 +80,7 @@ export class RefreshTokenService {
     const record = await this.refreshTokenRepository.findRefreshTokenById(claims.jti);
     if (record === null) return;
 
-    await this.refreshTokenRepository.revokeTokenFamily(record.familyId, new Date());
+    await this.refreshTokenRepository.deleteTokenFamily(record.familyId);
   }
 
   /**
@@ -106,7 +107,7 @@ export class RefreshTokenService {
       return this.issueRetryToken(record);
     }
 
-    await this.refreshTokenRepository.revokeTokenFamily(record.familyId, new Date());
+    await this.refreshTokenRepository.deleteTokenFamily(record.familyId);
     this.logger.warn(
       { userId: record.userId, familyId: record.familyId },
       'refresh token reuse detected',

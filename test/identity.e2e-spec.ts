@@ -112,21 +112,23 @@ describe('identity (e2e)', () => {
     );
     expect(rotated.refreshToken).not.toBe(loggedIn.refreshToken);
 
-    // refresh com o token antigo 401 (reuse detection)
-    const reused = parseJsonBody(
-      ProblemDetailsSchema,
+    // reuso imediato do token antigo = retry de rede: cai na janela de graça,
+    // recebe tokens novos e NÃO derruba a família. O kill fora da janela está
+    // coberto em refresh-token.service.spec.ts — o e2e não espera 60s.
+    const graced = parseJsonBody(
+      AuthTokensSchema,
       await request(server)
         .post('/v1/auth/refresh')
         .send({ refreshToken: loggedIn.refreshToken })
-        .expect(401),
+        .expect(200),
     );
-    expect(reused.type).toContain('authentication-required');
+    expect(graced.refreshToken).not.toBe(loggedIn.refreshToken);
 
-    // ...e a família inteira foi revogada: o token rotacionado também morre
+    // ...e o token rotacionado continua vivo: retry de graça não revoga ninguém
     await request(server)
       .post('/v1/auth/refresh')
       .send({ refreshToken: rotated.refreshToken })
-      .expect(401);
+      .expect(200);
 
     // logout 204 — família nova, para o logout ter o que revogar
     const relogged = parseJsonBody(
