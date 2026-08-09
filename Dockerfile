@@ -8,16 +8,17 @@ FROM base AS builder
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY . .
+# No Prisma 7 o generate emite TypeScript em src/generated/, que o build compila
+# junto. Por isso ele vem antes do build — e some do estágio final.
 RUN pnpm prisma generate && pnpm build
 
-# O runner gera o client ele mesmo. Copiar node_modules/.prisma do builder não
-# funciona com pnpm: o client gerado mora dentro do store .pnpm e .prisma é
-# link, não pasta copiável — a imagem subia e quebrava na primeira query.
 FROM base AS runner
 ENV NODE_ENV=production
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY prisma ./prisma
-RUN pnpm install --frozen-lockfile --prod && pnpm prisma generate
+RUN pnpm install --frozen-lockfile --prod
+# Sem `prisma generate` aqui: no Prisma 7 o client já está compilado dentro de
+# dist/. O CLI está em devDependencies, então migration roda no CI
+# (`pnpm db:deploy`), não a partir do container da aplicação.
 COPY --from=builder /app/dist ./dist
 USER node
 CMD ["node", "dist/main.js"]

@@ -39,9 +39,14 @@ module.exports = {
         'que trava o enum), use os tipos inferidos do Zod.',
       from: {
         path: '^src/',
-        pathNot: ['\\.repository\\.ts$', '\\.spec\\.ts$', '^src/platform/database/'],
+        pathNot: [
+          '\\.repository\\.ts$',
+          '\\.spec\\.ts$',
+          '^src/platform/database/',
+          '^src/generated/',
+        ],
       },
-      to: { dependencyTypes: ['npm'], path: '^@prisma/client' },
+      to: { path: '^src/generated/prisma' },
     },
     {
       name: 'contracts-are-leaves',
@@ -54,12 +59,17 @@ module.exports = {
     {
       name: 'no-orphans',
       severity: 'warn',
-      from: { orphan: true, pathNot: ['\\.d\\.ts$', '^src/main\\.ts$'] },
+      from: {
+        orphan: true,
+        pathNot: ['\\.d\\.ts$', '^src/main\\.ts$', '^src/generated/'],
+      },
       to: {},
     },
   ],
   options: {
-    doNotFollow: { path: 'node_modules' },
+    // O client gerado tem centenas de módulos e nenhuma regra nossa se aplica a
+    // ele: seguir suas dependências só deixaria o arch:check lento.
+    doNotFollow: { path: ['node_modules', '^src/generated/'] },
     tsConfig: { fileName: 'tsconfig.json' },
     tsPreCompilationDeps: true,
   },

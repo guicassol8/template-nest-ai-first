@@ -11,7 +11,7 @@ Autenticação JWT completa, fronteiras arquiteturais verificadas por máquina e
 ![nestjs](https://img.shields.io/badge/NestJS-11-E0234E?logo=nestjs&logoColor=white)
 ![typescript](https://img.shields.io/badge/TypeScript-5.9_strict-3178C6?logo=typescript&logoColor=white)
 ![zod](https://img.shields.io/badge/Zod-4-3E67B1)
-![prisma](https://img.shields.io/badge/Prisma-6-2D3748?logo=prisma&logoColor=white)
+![prisma](https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma&logoColor=white)
 ![license](https://img.shields.io/badge/license-MIT-black)
 
 </div>
@@ -54,8 +54,9 @@ Três consequências práticas:
   sem regenerar tem o build quebrado
 
 **Infra**
-- Prisma com multi-file schema, Postgres via Compose, imagem Docker que roda como
-  usuário não-root
+- Prisma 7 com multi-file schema e driver adapter (a URL do banco passa pelo
+  ambiente validado, não por `env()` dentro do schema), Postgres via Compose,
+  imagem Docker que roda como usuário não-root
 - Logs estruturados com `pino`, com redaction de `authorization`, `password` e
   tokens
 - `/health` (liveness) e `/health/ready` (checa o Postgres), fora do prefixo `/v1`
@@ -79,8 +80,9 @@ nvm use 24 && corepack enable pnpm
 pnpm install
 cp .env.example .env
 
-# 3. Postgres + schema + admin
+# 3. Postgres + client + schema + admin
 docker compose up -d
+pnpm prisma generate
 pnpm db:deploy
 pnpm db:seed
 

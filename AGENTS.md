@@ -67,6 +67,7 @@ Mesmo assim, **liste as decisões assim tomadas ao fim da tarefa**, uma linha ca
 | `pnpm arch:check` | dependency-cruiser + `scripts/check-conventions.sh` |
 | `pnpm openapi:generate` | regenera `openapi.json` (commitado) |
 | `pnpm db:migrate --name x` | cria migration |
+| `pnpm prisma generate` | (re)gera o client em `src/generated/` — não commitado |
 | `pnpm db:deploy` / `pnpm db:seed` | aplica migrations / cria o admin |
 
 Postgres local: `docker compose up -d`. Copie `.env.example` para `.env`. Porta
@@ -115,7 +116,8 @@ loja e você não controla o rollout.
 
 ```
 docs/           architecture.md (o porquê) · api-conventions.md · recipes.md
-prisma/schema/  schema.prisma · identity.prisma · auth.prisma · migrations/
+prisma.config.ts  schema, migrations e datasource do Prisma
+prisma/         schema/*.prisma · migrations/ · seed.ts
 scripts/        emit-openapi-document.ts · check-conventions.sh
 test/           identity.e2e-spec.ts · rate-limit.e2e-spec.ts
 openapi.json    COMMITADO, gerado, verificado no CI
@@ -243,8 +245,9 @@ NUNCA:
 - nomear valor exportado com uma palavra só (type de entidade pode)
 - importar de outro módulo sem ser pelo *.public.ts dele, ou importar
   modules/* dentro de platform/*
-- usar PrismaService ou @prisma/client fora de um *.repository.ts (exceções:
-  platform/database/, dono da capacidade, e o spec que trava o enum UserRole)
+- usar PrismaService ou o client gerado (src/generated/prisma) fora de um
+  *.repository.ts (exceções: platform/database/, dono da capacidade, e o spec
+  que trava o enum UserRole)
 - expor tipo do Prisma em contrato de API
 - usar class-validator, class-transformer ou z.date() em contrato
 - empilhar @ZodSerializerDto + @ApiOkResponse (use @ZodResponse)

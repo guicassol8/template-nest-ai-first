@@ -1,4 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '../src/generated/prisma/client';
 import { PasswordHasherService } from '../src/platform/auth/password-hasher.service';
 import { EnvironmentSchema } from '../src/platform/config/environment.contracts';
 
@@ -20,7 +21,9 @@ const seedAdminUser = async (): Promise<void> => {
     return;
   }
 
-  const prisma = new PrismaClient();
+  const prisma = new PrismaClient({
+    adapter: new PrismaPg({ connectionString: environment.DATABASE_URL }),
+  });
   // Mesmo hasher da aplicação: reimplementar argon2 aqui criaria uma segunda
   // fonte de verdade para o formato do hash.
   const passwordHasher = new PasswordHasherService();

@@ -7,7 +7,14 @@ const SOURCE_FILES = ['src/**/*.ts', 'test/**/*.ts', 'scripts/**/*.ts', 'prisma/
 
 export default tseslint.config(
   {
-    ignores: ['dist/**', 'dist-openapi/**', 'coverage/**', 'node_modules/**'],
+    ignores: [
+      'dist/**',
+      'dist-openapi/**',
+      'coverage/**',
+      'node_modules/**',
+      // Client do Prisma: código gerado, não código do repositório.
+      'src/generated/**',
+    ],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
@@ -59,9 +66,12 @@ export default tseslint.config(
       'no-restricted-imports': [
         'error',
         {
-          paths: [
+          // Caminho relativo, então aqui o glob CASA de verdade — diferente da
+          // fronteira entre módulos, onde a string do import não contém
+          // "modules/" e uma regra dessas passaria verde sem olhar nada.
+          patterns: [
             {
-              name: '@prisma/client',
+              group: ['**/generated/prisma', '**/generated/prisma/*'],
               message:
                 'Só em *.repository.ts (e no spec do enum). Use o tipo inferido do Zod.',
             },
@@ -88,7 +98,7 @@ export default tseslint.config(
   },
   {
     // O repository é a porta do Prisma, o spec do enum trava a sincronia e o
-    // PrismaService estende PrismaClient: os três precisam de @prisma/client.
+    // PrismaService estende PrismaClient: os três precisam do client gerado.
     // Mesma isenção que a regra prisma-client-only-in-repositories já dá.
     files: ['**/*.repository.ts', '**/*.spec.ts', 'src/platform/database/**'],
     rules: { 'no-restricted-imports': 'off' },

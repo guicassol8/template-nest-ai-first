@@ -150,19 +150,43 @@ Os schemas de resposta saem com sufixo `_Output` (`AuthTokens_Output`). É a
 convenção do `nestjs-zod` para separar formato de entrada e de saída; não é
 configurável em `cleanupOpenApiDoc`, que só aceita `version`.
 
-## Por que Prisma 6, e quando subir para 7
+## Prisma 7: o que muda, e por que o CommonJS sobreviveu
 
-O Prisma 7 é a major atual, mas invalida quatro decisões deste repositório de uma
-vez: `@prisma/client` deixa de ser um especificador válido (vira um caminho
-gerado), o que transforma a regra do ESLint, a do dependency-cruiser e a do
-`check-conventions.sh` em **checkers que não podem falhar** (P5); exige
-`"type": "module"` e `module: ESNext`, contra o `module: commonjs` que o
-`emitDecoratorMetadata` do NestJS 11 usa; e substitui o `package.json#prisma` por
-`prisma.config.ts`.
+O medo era que o Prisma 7 forçasse ESM e brigasse com o `emitDecoratorMetadata`
+do NestJS. Não força: o generator `prisma-client` aceita
+`moduleFormat = "cjs"`, e todo o resto do projeto continua CommonJS.
 
-**Critério de saída:** subir quando o NestJS documentar ESM oficialmente — o
-candidato natural é a major 12. Aí a migração é uma tarefa própria, com os três
-checkers reescritos junto.
+O que de fato mudou:
+
+- **O client é código no repositório**, não um pacote em `node_modules`. Ele é
+  gerado em `src/generated/prisma` (dentro de `src/` porque é TypeScript e o
+  build precisa dele sob o `rootDir`), está no `.gitignore`, e é produzido por
+  `pnpm prisma generate`.
+- **`@prisma/client` deixou de ser um especificador de import.** Os três checkers
+  foram reescritos para o caminho gerado. O import é relativo
+  (`../../generated/prisma/client`) e, ao contrário da fronteira entre módulos, a
+  string **contém** `generated/prisma/` — então aqui um glob de
+  `no-restricted-imports` casa de verdade. Foi testado: os três reprovam um import
+  fora de `*.repository.ts`, `*.spec.ts` e `platform/database/`.
+- **A URL saiu do schema** e foi para `prisma.config.ts`. Em runtime quem conecta é
+  o driver adapter (`@prisma/adapter-pg`) recebendo a URL do
+  `ConfigService` validado — antes o `PrismaClient` lia `process.env` por baixo do
+  pano, via `env()` no schema. É mais uma leitura de ambiente que passou a ser
+  validada no boot.
+- **O `prisma.config.ts` lê `process.env` direto, não o helper `env()` do Prisma.**
+  O helper lança ao *carregar* o config quando a variável não existe, e isso
+  quebraria `prisma generate` em qualquer lugar sem banco — o build do Docker, por
+  exemplo. Generate não precisa de conexão.
+- **`migrations.path` é explícito.** Com schema em pasta, o default oscila entre
+  `prisma/migrations` e `prisma/schema/migrations`.
+- **O runner do Docker ficou mais simples**: sem `prisma generate`, porque o client
+  já está compilado em `dist/`. O CLI voltou a ser devDependency e migration roda
+  no CI, não a partir do container da aplicação.
+
+Custo conhecido: a imagem de produção passou de 1.6 GB para 1.9 GB. O CLI `prisma`
+é peer **opcional** do `@prisma/client` e, com `autoInstallPeers`, volta para a
+imagem mesmo estando em devDependencies. Cortar isso exige desligar
+`autoInstallPeers` no lockfile inteiro — não fizemos, e fica registrado aqui.
 
 ## Por que TypeScript 5, não 7
 

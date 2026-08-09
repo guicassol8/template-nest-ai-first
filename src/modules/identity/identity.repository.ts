@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
-import type { User as PrismaUser } from '@prisma/client';
+import { Prisma } from '../../generated/prisma/client';
+import type { User as PrismaUser } from '../../generated/prisma/client';
 import { PrismaService } from '../../platform/database/prisma.service';
 import type { RegisterUserRequest, UserRecord } from './identity.contracts';
 import type { UserRole } from '../../platform/auth/user-role.contracts';

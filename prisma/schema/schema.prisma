@@ -1,10 +1,15 @@
-// Multi-file schema (GA desde o Prisma 6.7). O CLI só encontra esta pasta por
-// causa de "prisma": { "schema": "prisma/schema" } no package.json.
+// Multi-file schema. O CLI encontra esta pasta por causa de `schema` em
+// prisma.config.ts. A URL de conexão NÃO mora aqui — ver prisma.config.ts.
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
+// `prisma-client` (não `prisma-client-js`): no Prisma 7 o client é gerado como
+// código no repositório, não dentro de node_modules. moduleFormat "cjs" porque
+// o NestJS depende de emitDecoratorMetadata, que exige CommonJS.
 generator client {
-  provider = "prisma-client-js"
+  provider     = "prisma-client"
+  output       = "../../src/generated/prisma"
+  moduleFormat = "cjs"
+  runtime      = "nodejs"
 }

@@ -1,5 +1,5 @@
-import { $Enums } from '@prisma/client';
-import type { UserRole as PrismaUserRole } from '@prisma/client';
+import { $Enums } from '../../generated/prisma/client';
+import type { UserRole as PrismaUserRole } from '../../generated/prisma/client';
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import { USER_ROLES, type UserRole } from './user-role.contracts';
 

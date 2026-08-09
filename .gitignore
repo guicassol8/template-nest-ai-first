@@ -16,3 +16,6 @@ coverage/
 # estiver ocupada por outro projeto). Nunca commitado.
 docker-compose.override.yml
 dist-openapi/
+
+# Client do Prisma: gerado por `pnpm prisma generate`, nunca commitado.
+src/generated/
