@@ -55,6 +55,9 @@ Prefixo `/v1` em tudo, **menos** `/health` e `/health/ready`, que ficam fora
 (`configureApiPrefix`). Sem versionamento por header e sem `@Version()` por rota
 enquanto só existir `v1`.
 
+O Swagger UI (`/docs`) só existe **fora de produção**: em produção a superfície
+pública é o `openapi.json` commitado, não uma UI navegável no host da API.
+
 ---
 
 ## Paginação (convenção para os módulos futuros)

@@ -39,8 +39,9 @@ Três consequências práticas:
 
 **Autenticação**
 - Registro, login, refresh, logout e `me` — JWT próprio, **sem Passport**
-- Refresh token rotativo persistido com **reuse detection por família**: token
-  reapresentado derruba a sessão inteira
+- Refresh token rotativo persistido com **reuse detection por família** e janela
+  de graça: reuso logo após a rotação é retry de rede e recebe tokens novos;
+  fora da janela, a família inteira é apagada
 - `argon2id` para senha, e o caminho do email inexistente gasta um hash falso para
   não vazar quais emails existem por timing
 - RBAC com guard global default-deny (`@PublicRoute()` é opt-out explícito)
@@ -173,7 +174,8 @@ fechada**: `module`, `controller`, `service`, `repository`, `contracts`, `public
 
 Clique em **Use this template** e depois ajuste:
 
-1. `package.json` → `name` e `description`
+1. `package.json` → `name`, `description` e `version` — `name` e `version` viram
+   o título e a versão do `openapi.json` automaticamente
 2. `PROBLEM_TYPE_BASE` em `src/platform/http-errors/problem-details.contracts.ts` →
    o domínio da sua API
 3. `USER_ROLES` em `src/platform/auth/user-role.contracts.ts` → o vocabulário de

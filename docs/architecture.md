@@ -293,12 +293,14 @@ pergunta antes.
 
 ## O que não é verificável por máquina
 
-Três coisas não têm checker, e isso é escolha consciente em vez de promessa vaga.
-São os três itens de checklist de PR:
+Quatro coisas não têm checker, e isso é escolha consciente em vez de promessa
+vaga. São os quatro itens de checklist de PR:
 
 1. "Uma das palavras do símbolo é do domínio" — o script checa contagem de
    palavras, não semântica. `DataProcessor` passa no script e é ruim.
 2. "Comentário explica o porquê, não o quê."
 3. "O módulo está no estágio certo" (simples / regras / agregado).
+4. "O comportamento novo veio com o teste no mesmo commit" — o hook valida o
+   formato da mensagem, não o conteúdo do diff.
 
 Qualquer outra regra que aparecer sem checker é bug — abra issue.
