@@ -229,6 +229,22 @@ copiável. A imagem subia e quebrava na primeira query. Por isso o `prisma` (CLI
 dependência de **produção**, não de dev — e de quebra o mesmo binário permite
 `prisma migrate deploy` dentro do container.
 
+## Por que os hooks resolvem o `pnpm` na mão
+
+O git executa hooks com um PATH mínimo e não carrega nvm, fnm, volta nem asdf.
+Como o `pnpm` deste projeto vem do corepack de dentro da instalação do Node
+gerenciada, ele **some no hook** mesmo funcionando no terminal — e some sempre
+quando o commit ou o push sai da UI do VS Code, que nem lê o rc do shell. O
+sintoma é `pnpm: comando não encontrado` no `pre-push`.
+
+`.githooks/resolve-pnpm.sh` procura o `pnpm` nos layouts usuais dos gerenciadores
+de versão, dando preferência à major declarada no `.nvmrc`. Isso conserta um
+segundo problema de tabela: sem ele, o `node` que sobrava no PATH era o do
+sistema, que pode nem ser a major que o projeto declara.
+
+Quando não encontra, o hook **falha com instrução** em vez de pular a
+verificação. Hook que se desliga sozinho é um checker que não pode falhar.
+
 ## Por que `allowBuilds` no `pnpm-workspace.yaml`
 
 pnpm 10+ não roda script de install sem autorização, e no pnpm 11 um build ignorado

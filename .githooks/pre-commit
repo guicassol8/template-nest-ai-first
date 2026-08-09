@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 set -e
+. "$(dirname "$0")/resolve-pnpm.sh"
 pnpm verify:fast
