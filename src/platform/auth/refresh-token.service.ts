@@ -34,17 +34,10 @@ export class RefreshTokenService {
    * apresentado é o mesmo que gerou aquela linha.
    */
   async rotateRefreshToken(presentedToken: string): Promise<RotatedRefreshToken> {
-    const { claims, record } = await this.resolvePresentedToken(presentedToken);
+    const record = await this.resolvePresentedToken(presentedToken);
 
     if (record.revokedAt !== null) {
-      // Token já usado circulando de novo: só acontece se vazou. Mata a família
-      // inteira — o legítimo e o atacante são deslogados juntos, de propósito.
-      await this.refreshTokenRepository.revokeTokenFamily(record.familyId, new Date());
-      this.logger.warn(
-        { userId: record.userId, familyId: record.familyId },
-        'refresh token reuse detected',
-      );
-      throw new UnauthorizedException('Sessão inválida');
+      return this.resolveReusedToken(record, record.revokedAt);
     }
 
     const now = new Date();
@@ -55,7 +48,7 @@ export class RefreshTokenService {
       record.familyId,
     );
 
-    await this.refreshTokenRepository.rotateRefreshToken(record.id, now, {
+    const rotated = await this.refreshTokenRepository.rotateRefreshToken(record.id, now, {
       id: nextTokenId,
       userId: record.userId,
       familyId: record.familyId,
@@ -63,7 +56,14 @@ export class RefreshTokenService {
       expiresAt: this.buildExpiryDate(now),
     });
 
-    return { userId: claims.sub, refreshToken: nextToken };
+    if (!rotated) {
+      // Um refresh concorrente com o MESMO token revogou a linha entre a nossa
+      // leitura e o update condicional. Por construção isso acabou de
+      // acontecer — está dentro da janela de graça, então é retry, não roubo.
+      return this.issueRetryToken(record);
+    }
+
+    return { userId: record.userId, refreshToken: nextToken };
   }
 
   /**
@@ -78,6 +78,45 @@ export class RefreshTokenService {
     if (record === null) return;
 
     await this.refreshTokenRepository.revokeTokenFamily(record.familyId, new Date());
+  }
+
+  /**
+   * Token já revogado reapresentado. Dentro da janela de graça é retry de rede
+   * — o app mandou o refresh, a resposta com o par novo se perdeu e ele só tem
+   * o token antigo para tentar de novo. Deslogar aqui puniria o usuário pela
+   * rede ruim, então nasce outro token na mesma família. Fora da janela só
+   * sobra roubo: revoga a família inteira — o legítimo e o atacante são
+   * deslogados juntos, de propósito.
+   */
+  private async resolveReusedToken(
+    record: RefreshTokenRecord,
+    revokedAt: Date,
+  ): Promise<RotatedRefreshToken> {
+    const graceMilliseconds =
+      this.config.get('JWT_REFRESH_REUSE_GRACE_SECONDS', { infer: true }) *
+      MILLISECONDS_PER_SECOND;
+
+    if (Date.now() - revokedAt.getTime() <= graceMilliseconds) {
+      this.logger.log(
+        { userId: record.userId, familyId: record.familyId },
+        'refresh token retry within grace window',
+      );
+      return this.issueRetryToken(record);
+    }
+
+    await this.refreshTokenRepository.revokeTokenFamily(record.familyId, new Date());
+    this.logger.warn(
+      { userId: record.userId, familyId: record.familyId },
+      'refresh token reuse detected',
+    );
+    throw new UnauthorizedException('Sessão inválida');
+  }
+
+  private async issueRetryToken(record: RefreshTokenRecord): Promise<RotatedRefreshToken> {
+    return {
+      userId: record.userId,
+      refreshToken: await this.issueInFamily(record.userId, record.familyId),
+    };
   }
 
   private async issueInFamily(userId: string, familyId: string): Promise<string> {
@@ -97,7 +136,7 @@ export class RefreshTokenService {
 
   private async resolvePresentedToken(
     presentedToken: string,
-  ): Promise<{ claims: { sub: string; jti: string }; record: RefreshTokenRecord }> {
+  ): Promise<RefreshTokenRecord> {
     const claims = await this.readClaims(presentedToken);
     if (claims === null) {
       throw new UnauthorizedException('Sessão inválida');
@@ -116,7 +155,7 @@ export class RefreshTokenService {
       throw new UnauthorizedException('Sessão inválida');
     }
 
-    return { claims, record };
+    return record;
   }
 
   private async readClaims(

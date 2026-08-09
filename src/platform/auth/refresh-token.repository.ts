@@ -40,20 +40,30 @@ export class RefreshTokenRepository {
     });
   }
 
-  // Revogar a linha atual e gravar a nova precisa ser atômico: sem transação,
-  // uma falha no meio deixa a família sem token válido e desloga o usuário.
+  /**
+   * Revoga a linha atual e grava a sucessora numa transação — e a revogação é
+   * CONDICIONAL (`revokedAt: null` no where). Devolve false quando a linha já
+   * estava revogada: dois refreshes concorrentes com o mesmo token disputam
+   * esse update, e sem a condição os dois passariam calados, sem nunca acionar
+   * a reuse detection. Quem decide se a derrota na corrida é retry ou roubo é
+   * o service.
+   */
   async rotateRefreshToken(
     revokedTokenId: string,
     revokedAt: Date,
     next: InsertRefreshTokenInput,
-  ): Promise<void> {
-    const operations: Prisma.PrismaPromise<unknown>[] = [
-      this.prisma.refreshToken.update({
-        where: { id: revokedTokenId },
-        data: { revokedAt },
-      }),
-      this.prisma.refreshToken.create({ data: next }),
-    ];
-    await this.prisma.$transaction(operations);
+  ): Promise<boolean> {
+    return this.prisma.$transaction(
+      async (transaction: Prisma.TransactionClient): Promise<boolean> => {
+        const { count } = await transaction.refreshToken.updateMany({
+          where: { id: revokedTokenId, revokedAt: null },
+          data: { revokedAt },
+        });
+        if (count === 0) return false;
+
+        await transaction.refreshToken.create({ data: next });
+        return true;
+      },
+    );
   }
 }

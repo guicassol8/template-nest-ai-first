@@ -94,12 +94,29 @@ Com argon2 (salt aleatório) **não existe busca por hash** — `findUnique({ to
 2. **Uso:** valida a assinatura → extrai `jti` → `findUnique({ id: jti })` →
    `argon2.verify(row.tokenHash, jwt)`. A busca é por **id**; o hash só confirma.
 3. Linha inexistente, expirada, ou hash que não bate → `401`.
-4. **Reuse detection:** linha existe mas `revokedAt != null` → o token já foi usado,
-   o que só acontece se vazou. Revoga a **família inteira**, loga `warn` com
-   `userId` e `familyId`, devolve `401`. O legítimo e o atacante são deslogados
-   juntos, de propósito.
-5. **Caso feliz:** revoga a linha atual e emite um par novo na mesma família, dentro
-   de uma transação.
+4. **Reuse detection com janela de graça:** linha existe mas `revokedAt != null` →
+   o token já foi usado. Dentro de `JWT_REFRESH_REUSE_GRACE_SECONDS` (60s por
+   default) isso é lido como retry de rede — o app mandou o refresh, a resposta
+   com o par novo se perdeu, e ele só tem o token antigo para reapresentar.
+   Nasce outro token na mesma família e ninguém é deslogado. Fora da janela só
+   sobra roubo: revoga a **família inteira**, loga `warn` com `userId` e
+   `familyId`, devolve `401` — o legítimo e o atacante caem juntos, de propósito.
+5. **Caso feliz:** revoga a linha atual e emite um par novo na mesma família, numa
+   transação — e a revogação é **condicional** (`revokedAt: null` no where). Se
+   nenhuma linha foi afetada, um refresh concorrente ganhou a corrida um instante
+   atrás; por construção isso está dentro da janela de graça e vira retry também.
+   Sem a condição, dois refreshes simultâneos com o mesmo token passariam calados
+   e a reuse detection nunca dispararia.
+
+A janela de graça é uma decisão de UX com custo declarado: um atacante que use o
+token roubado nos primeiros 60s depois de uma rotação ganha um ramo válido sem
+soar alarme. Na mesma linha, **a sessão não tem teto absoluto de propósito** —
+cada rotação emite um refresh com TTL cheio, então quem abre o app pelo menos uma
+vez por mês permanece logado indefinidamente (estilo rede social, não banco).
+Forçar redigitar a senha a cada N dias foi considerado e recusado em favor da UX
+do app mobile. Se a política mudar, o instante de nascimento da família pode
+viajar como claim assinada no próprio JWT e virar `min(TTL, teto)` na emissão —
+sem migration.
 
 `argon2` sobre um token de 256 bits é caro sem necessidade, mas mantém uma única
 primitiva de hash no projeto. Se o custo aparecer em profiling, a alternativa

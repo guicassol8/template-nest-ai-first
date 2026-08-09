@@ -118,7 +118,10 @@ app lida com `const`/`anyOf` de 3.1.
 | `/health` | GET | Sim | Liveness (fora do `/v1`) |
 | `/health/ready` | GET | Sim | Readiness: checa Postgres (fora do `/v1`) |
 
-- Access token de 15 min; refresh rotativo persistido com reuse detection.
+- Access token de 15 min; refresh rotativo persistido com reuse detection —
+  reuso dentro da janela de graça (`JWT_REFRESH_REUSE_GRACE_SECONDS`, 60s) é
+  retry de rede e recebe tokens novos; fora dela derruba a família inteira.
+  Sessão sem teto absoluto, de propósito (ver `docs/architecture.md`).
 - `argon2id` para senha. Nunca bcrypt, nunca SHA.
 - Rate limit de 5 req/min por IP em `register`, `login` e `refresh` — são rotas
   públicas que chamam argon2.
