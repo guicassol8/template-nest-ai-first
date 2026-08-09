@@ -226,37 +226,25 @@ o **porquê**.
 NA DÚVIDA, PERGUNTE. Sempre, quantas vezes precisar. Nenhuma tarefa aqui
 tem pressa que justifique um chute.
 
+As regras das seções 1–7 valem por si e NÃO se repetem aqui: isto é o
+complemento delas, não um resumo. Regra duplicada deriva.
+
 NUNCA:
-- adivinhar quando este arquivo não cobre o caso — pergunte
-- deixar TODO / FIXME / placeholder / stub no lugar de uma pergunta
-- implementar duas opções "para escolherem depois"
 - usar any (nem "temporariamente", nem em teste, nem em mock)
 - usar `as` (exceto `as const`), `as unknown as`, `!` de non-null ou @ts-ignore;
   @ts-expect-error só com descrição do porquê
 - usar eslint-disable sem nomear a regra e justificar na linha
 - desligar flag do tsconfig ou afrouxar checker para a tarefa passar — é pergunta
-- commitar sem `pnpm verify:fast` verde, dar push sem `pnpm verify` verde, ou
-  usar `--no-verify`
-- deixar trabalho verde sem commitar; commitar meia refatoração, arquivo
-  quebrado ou `WIP`; separar o teste do comportamento em dois commits
-- mensagem de commit fora do conventional commits, com escopo de arquivo em vez
-  de módulo/capacidade, ou no passado ("added guards")
 - criar index.ts / barrel file (exceção: nenhuma) ou usar export *
 - criar pasta dto/, interfaces/, enums/, types/, constants/, utils/, helpers/,
   shared/ ou common/
-- criar .ts com papel fora da lista fechada — só src/main.ts escapa
-- nomear valor exportado com uma palavra só (type de entidade pode)
-- importar de outro módulo sem ser pelo *.public.ts dele, ou importar
-  modules/* dentro de platform/*
 - usar PrismaService ou o client gerado (src/generated/prisma) fora de um
-  *.repository.ts (exceções: platform/database/, dono da capacidade, e o spec
-  que trava o enum UserRole)
+  *.repository.ts (exceções: platform/database/ e o spec que trava o enum
+  UserRole)
 - expor tipo do Prisma em contrato de API
 - usar class-validator, class-transformer ou z.date() em contrato
 - empilhar @ZodSerializerDto + @ApiOkResponse (use @ZodResponse)
 - ler process.env dentro de src/ (inclusive no main.ts)
-- chamar getRequest() sem tipo — sempre getRequest<Request>()
-- valor de enum, rota, coluna ou chave de log em português
 - criar rota sem decidir explicitamente se ela leva @PublicRoute()
 - reordenar os APP_GUARD (ThrottlerGuard → JwtAuthGuard → RolesGuard)
 - colocar /health atrás do prefixo /v1 ou do guard global
@@ -266,21 +254,11 @@ NUNCA:
 - criar endpoint público de promoção a admin
 - adicionar Redis, fila, email ou storage sem necessidade concreta declarada
 - adicionar path alias sem resolver a configuração de runtime
-- adicionar dependência sem justificar em uma frase no PR
-- escrever a mesma regra em dois arquivos de documentação
 
 SEMPRE:
-- perguntar antes de supor — a permissão é irrestrita
-- commitar por conta própria ao fechar uma unidade coerente
 - schema Zod como fonte única de tipo + validação + doc, com .meta({ id })
-- `unknown` na borda, tipo forte dentro; tipo de retorno explícito na fronteira
 - switch exaustivo sobre union, com assertNeverReached no default (ver receita)
-- nome de arquivo = <conceito>.<papel>.ts; teste com o nome do fonte, no mesmo
-  commit do comportamento
-- comentário de uma linha na definição, explicando o porquê
-- consultar docs/recipes.md antes de uma tarefa recorrente
 - rodar `pnpm verify` antes de dizer que terminou
-- reportar as decisões pequenas tomadas sozinho
 ```
 
 ---
