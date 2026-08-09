@@ -132,6 +132,32 @@ antes.
 
 ---
 
+## Escrever um switch exaustivo sobre union
+
+O `default` tem que chamar `assertNeverReached(value)`, para que adicionar um
+valor novo à union **quebre o build** em vez de cair silenciosamente no default.
+
+O helper não vem pronto no template: enquanto não existe nenhum switch, ele seria
+código morto — e o `no-orphans` do dependency-cruiser avisa exatamente isso. Crie
+junto com o primeiro switch:
+
+```ts
+// src/platform/http-errors/never-reached.assert.ts
+// Fecha switch sobre union: se alguém adicionar um valor novo e esquecer de
+// tratá-lo, o parâmetro deixa de ser `never` e o build quebra — que é o objetivo.
+export const assertNeverReached = (value: never): never => {
+  throw new Error(`Valor não tratado em switch exaustivo: ${JSON.stringify(value)}`);
+};
+```
+
+**Arquivos editados: 1 + o helper, uma única vez no repositório.**
+
+Não use para `switch` sobre enum aberto (um `HttpStatus` com ~50 membros nunca
+será exaustivo). Nesses casos, um `Partial<Record<...>>` com `??` de fallback é a
+forma certa — é o que `http-problem-details.filter.ts` faz.
+
+---
+
 ## Adicionar um papel novo
 
 1. `src/platform/auth/user-role.contracts.ts` — valor em `USER_ROLES`

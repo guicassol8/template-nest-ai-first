@@ -129,7 +129,7 @@ src/
     ├── auth/        papéis, tokens, hashing, guards, decorators
     ├── config/      ambiente validado no boot
     ├── database/    PrismaService e readiness
-    ├── http-errors/ problem details e assertNeverReached
+    ├── http-errors/ problem details, filter e o decorator de erros
     ├── openapi/     prefixo /v1 e montagem do documento
     └── observability/  logging e health
 ```
@@ -179,8 +179,11 @@ A lista completa de proibições está na seção 8. O que precisa de explicaç�
 - **`catch (error: unknown)`** sempre, estreitado com `instanceof` antes de ler
   `.message`.
 - **`switch` sobre union é exaustivo**, com `default` chamando
-  `assertNeverReached(value)` (`platform/http-errors/never-reached.assert.ts`):
-  assim adicionar um valor novo à union quebra o build, que é o objetivo.
+  `assertNeverReached(value)` — assim adicionar um valor novo à union quebra o
+  build, que é o objetivo. O helper **ainda não existe**: hoje não há nenhum
+  switch sobre union no código, e código morto é o que o P3 proíbe. Crie
+  `platform/http-errors/never-reached.assert.ts` junto com o primeiro switch,
+  seguindo a receita em `docs/recipes.md`.
 - **Tipo de retorno explícito** em todo método de service, repository e controller,
   e em toda função exportada.
 - **Sem tipo estrutural anônimo repetido** — se o mesmo `{ a: string; b: number }`
@@ -271,7 +274,7 @@ SEMPRE:
 - commitar por conta própria ao fechar uma unidade coerente
 - schema Zod como fonte única de tipo + validação + doc, com .meta({ id })
 - `unknown` na borda, tipo forte dentro; tipo de retorno explícito na fronteira
-- switch exaustivo sobre union, com assertNeverReached no default
+- switch exaustivo sobre union, com assertNeverReached no default (ver receita)
 - nome de arquivo = <conceito>.<papel>.ts; teste com o nome do fonte, no mesmo
   commit do comportamento
 - comentário de uma linha na definição, explicando o porquê
