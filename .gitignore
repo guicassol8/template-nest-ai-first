@@ -19,3 +19,6 @@ dist-openapi/
 
 # Client do Prisma: gerado por `pnpm prisma generate`, nunca commitado.
 src/generated/
+
+# Overview técnico em HTML/PDF: fonte local, não versionada.
+docs-local/
