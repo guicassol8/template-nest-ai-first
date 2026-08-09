@@ -216,10 +216,9 @@ está deprecado e **para de funcionar no TypeScript 7**. Sem `"type": "module"` 
 `package.json`, o `node16` continua emitindo CommonJS — a saída e o `openapi.json`
 saem byte a byte iguais.
 
-O schema do Prisma é apontado por `prisma.config.ts`, não pelo `package.json#prisma`,
-que o CLI já marca como deprecado e some no Prisma 7. O `url` continua no bloco
-`datasource` porque na major 6 é lá que ele mora; a extensão do VS Code pode
-reclamar disso quando estiver na 7 — é falso positivo, não mexa.
+O schema do Prisma é apontado por `prisma.config.ts` (`package.json#prisma`
+morreu no Prisma 7), e a URL de conexão não mora mais no bloco `datasource` —
+saiu do schema junto com a major 7; ver a seção "Prisma 7" acima.
 
 `esModuleInterop` está ligado porque `supertest` e `argon2` são CommonJS puro: sem
 ele o import resolve para um tipo desconhecido e a família `no-unsafe-*` estoura no
@@ -237,14 +236,6 @@ Sem ele, o `include` amplo do `tsconfig.json` (que precisa cobrir `test/`,
 `scripts/` e `prisma/` para o typecheck) faz o `rootDir` inferido subir para a raiz,
 e o build sai em **`dist/src/main.js`** — enquanto o script `start` e o `CMD` do
 Dockerfile apontam para `dist/main.js`. `pnpm build` verde, container que não sobe.
-
-## Por que o runner do Docker gera o client do Prisma
-
-`COPY --from=builder /app/node_modules/.prisma` **não funciona com pnpm**: o client
-gerado fica dentro do store `node_modules/.pnpm/...` e `.prisma` é link, não pasta
-copiável. A imagem subia e quebrava na primeira query. Por isso o `prisma` (CLI) é
-dependência de **produção**, não de dev — e de quebra o mesmo binário permite
-`prisma migrate deploy` dentro do container.
 
 ## Por que os hooks resolvem o `pnpm` na mão
 

@@ -123,7 +123,7 @@ test/           identity.e2e-spec.ts · rate-limit.e2e-spec.ts
 openapi.json    COMMITADO, gerado, verificado no CI
 src/
 ├── main.ts · app.module.ts
-├── modules/<ctx>/   8 arquivos: AGENTS.md, CLAUDE.md e <ctx>.{module,controller,
+├── modules/<ctx>/   9 arquivos: AGENTS.md, CLAUDE.md e <ctx>.{module,controller,
 │                    contracts,service,repository,public}.ts + <ctx>.service.spec.ts
 └── platform/        infraestrutura por CAPACIDADE, nunca por tipo de artefato
     ├── auth/        papéis, tokens, hashing, guards, decorators
