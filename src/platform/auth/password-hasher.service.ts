@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-// argon2 exporta só named exports e o tsconfig não liga esModuleInterop:
-// `import argon2 from 'argon2'` resolveria para um tipo desconhecido.
+// Imports nomeados com alias: `hash`/`verify` pelados são genéricos demais para
+// busca textual — hashWithArgon2 diz o que é em qualquer call site.
 import { argon2id, hash as hashWithArgon2, verify as verifyWithArgon2 } from 'argon2';
 
 // Hash fixo de uma senha aleatória descartada. Serve para o caminho do email
